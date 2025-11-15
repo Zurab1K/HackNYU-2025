@@ -14,7 +14,7 @@ export default function LandingPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: ''
+name: ''
   })
 
   const handleAuth = (e: React.FormEvent) => {
