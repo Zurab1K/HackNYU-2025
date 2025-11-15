@@ -1,25 +1,30 @@
-### Description
-- This is a fullstack boilerplate that uses React, TypeScript, Vite
-- Underlying page/routing uses React Router
+# AI fitness platform
 
-### Frontend Folder Structure
-**Make sure you are reading the below in code view mode or markdown preview for better visibility of the folder structure**
+*Automatically synced with your [v0.app](https://v0.app) deployments*
 
-frontend/
-├── src/
-│   ├── components/       # Reusable UI components
-│   │   └── layout/       # Layout components (Header, Footer, etc.)
-│   │       └── Header.tsx
-│   ├── pages/            # Page components (one per route)
-│   ├── hooks/            # Custom React hooks
-│   ├── services/         # API services
-│   ├── styles/           # Global styles and themes
-│   ├── types/            # TypeScript type definitions
-│   ├── utils/            # Utility functions
-│   ├── App.tsx           # Main app component with routing
-│   └── main.tsx          # App entry point
-├── .gitignore           # Git ignore file
-├── index.html           # Main HTML template
-├── package.json         # Project dependencies and scripts
-├── tsconfig.json        # TypeScript configuration
-└── vite.config.ts       # Vite configuration
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/mikhilchohdas-projects/v0-ai-fitness-platform)
+[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/jZgAY7ZgRvQ)
+
+## Overview
+
+This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
+Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+
+## Deployment
+
+Your project is live at:
+
+**[https://vercel.com/mikhilchohdas-projects/v0-ai-fitness-platform](https://vercel.com/mikhilchohdas-projects/v0-ai-fitness-platform)**
+
+## Build your app
+
+Continue building your app on:
+
+**[https://v0.app/chat/jZgAY7ZgRvQ](https://v0.app/chat/jZgAY7ZgRvQ)**
+
+## How It Works
+
+1. Create and modify your project using [v0.app](https://v0.app)
+2. Deploy your chats from the v0 interface
+3. Changes are automatically pushed to this repository
+4. Vercel deploys the latest version from this repository
