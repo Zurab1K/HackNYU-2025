@@ -17,6 +17,10 @@ export default function LandingPage() {
 name: ''
   })
 
+  const handleClick = async() => {
+    window.location.href = "http://localhost:8000/auth/google";
+}
+
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault()
     if (authMode === 'signup' && formData.name && formData.email && formData.password) {
@@ -54,16 +58,10 @@ name: ''
           {/* Gradient Buttons matching reference image */}
           <div className="space-y-4 max-w-md mx-auto pt-8">
             <button
-              onClick={() => setAuthMode('signin')}
+              onClick={handleClick}
               className="w-full h-14 rounded-xl text-white font-medium text-lg gradient-glow-button"
             >
               Sign In
-            </button>
-            <button
-              onClick={() => setAuthMode('signup')}
-              className="w-full h-14 rounded-xl text-white font-medium text-lg gradient-glow-button-secondary"
-            >
-              Create Account
             </button>
           </div>
         </div>
