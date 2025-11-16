@@ -16,6 +16,9 @@ type WorkoutPlan = {
         strengthGain: string;
         enduranceGain: string;
         muscleGain: string;
+        benchPress: string;
+        squat: string;
+        deadlift: string;
         focusAreas: string[];
     };
 };
@@ -84,6 +87,9 @@ export default function SimulatePage() {
                 strengthGain: '120%',
                 enduranceGain: '60%',
                 muscleGain: '8-12 lbs',
+                benchPress: '225 lbs',
+                squat: '275 lbs',
+                deadlift: '315 lbs',
                 focusAreas: ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms']
             }
         },
@@ -97,6 +103,9 @@ export default function SimulatePage() {
                 strengthGain: '70%',
                 enduranceGain: '120%',
                 muscleGain: '5-8 lbs',
+                benchPress: '185 lbs',
+                squat: '225 lbs',
+                deadlift: '265 lbs',
                 focusAreas: ['Full Body', 'Core', 'Functional Movement']
             }
         },
@@ -110,6 +119,9 @@ export default function SimulatePage() {
                 strengthGain: '90%',
                 enduranceGain: '60%',
                 muscleGain: '6-10 lbs',
+                benchPress: '185 lbs',
+                squat: '275 lbs',
+                deadlift: '355 lbs',
                 focusAreas: ['Glutes', 'Quads', 'Hamstrings', 'Calves']
             }
         },
@@ -205,6 +217,21 @@ export default function SimulatePage() {
                                             title="Endurance" 
                                             value={plan.expectedStats.enduranceGain} 
                                             description="Improvement in workout endurance"
+                                        />
+                                        <StatItem 
+                                            title="Bench Press" 
+                                            value={plan.expectedStats.benchPress} 
+                                            description="Expected bench press increase"
+                                        />
+                                        <StatItem 
+                                            title="Squat" 
+                                            value={plan.expectedStats.squat} 
+                                            description="Expected squat increase"
+                                        />
+                                        <StatItem 
+                                            title="Deadlift" 
+                                            value={plan.expectedStats.deadlift} 
+                                            description="Expected deadlift increase"
                                         />
                                     </div>
                                 </div>
