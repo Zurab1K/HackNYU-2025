@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dumbbell } from 'lucide-react'
+import { safeSetItem } from '@/lib/safe-storage'
 
 export default function LandingPage() {
   const router = useRouter()
@@ -14,17 +15,24 @@ export default function LandingPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-name: ''
+    name: '',
   })
 
-  const handleClick = async() => {
-    window.location.href = "http://localhost:8000/auth/google";
-}
+  const googleAuthUrl = useMemo(() => {
+    const base = process.env.NEXT_PUBLIC_GOOGLE_AUTH_URL
+    if (base) return base
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000/api'
+    return `${apiBase.replace(/\/api$/, '')}/auth/google`
+  }, [])
+
+  const handleGoogleSignIn = () => {
+    window.location.href = googleAuthUrl
+  }
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault()
     if (authMode === 'signup' && formData.name && formData.email && formData.password) {
-      localStorage.setItem('user_name', formData.name)
+      safeSetItem('user_name', formData.name)
       router.push('/welcome')
     } else if (authMode === 'signin' && formData.email && formData.password) {
       router.push('/welcome')
@@ -58,10 +66,16 @@ name: ''
           {/* Gradient Buttons matching reference image */}
           <div className="space-y-4 max-w-md mx-auto pt-8">
             <button
-              onClick={handleClick}
+              onClick={handleGoogleSignIn}
               className="w-full h-14 rounded-xl text-white font-medium text-lg gradient-glow-button"
             >
-              Sign In
+              Continue with Google
+            </button>
+            <button
+              onClick={() => setAuthMode('signup')}
+              className="w-full h-14 rounded-xl text-white font-medium text-lg gradient-glow-button-secondary"
+            >
+              Use email instead
             </button>
           </div>
         </div>
