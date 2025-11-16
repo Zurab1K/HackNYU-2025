@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { fetchWorkouts } from '@/lib/api'
+import { subscribeTrainingStateUpdates } from '@/lib/training-events'
 import type { WorkoutsResponse } from '@/types/workouts'
 
 export const useWorkoutsData = () => {
@@ -25,6 +26,11 @@ export const useWorkoutsData = () => {
 
   useEffect(() => {
     load()
+  }, [load])
+
+  useEffect(() => {
+    const unsubscribe = subscribeTrainingStateUpdates(load)
+    return unsubscribe
   }, [load])
 
   return { data, loading, error, refresh: load }

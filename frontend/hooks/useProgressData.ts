@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { fetchProgress } from '@/lib/api'
+import { subscribeTrainingStateUpdates } from '@/lib/training-events'
 import type { ProgressResponse } from '@/types/progress'
 
 export const useProgressData = () => {
@@ -25,6 +26,11 @@ export const useProgressData = () => {
 
   useEffect(() => {
     load()
+  }, [load])
+
+  useEffect(() => {
+    const unsubscribe = subscribeTrainingStateUpdates(load)
+    return unsubscribe
   }, [load])
 
   return { data, loading, error, refresh: load }

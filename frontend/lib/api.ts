@@ -1,53 +1,38 @@
 import type { DashboardResponse } from '@/types/dashboard'
-import type { OnboardingPayload } from '@/types/onboarding'
 import type { WorkoutsResponse } from '@/types/workouts'
 import type { ProgressResponse } from '@/types/progress'
 import type { ProfileDetails } from '@/types/profile'
+import {
+  checkInToday,
+  getDashboardData,
+  getProgressData,
+  getProfileDetails,
+  getWorkoutsData,
+  updateProfileDetails,
+} from '@/lib/training-state'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api'
+export const fetchDashboard = async (): Promise<DashboardResponse> => getDashboardData()
 
-const defaultHeaders: HeadersInit = {
-  'Content-Type': 'application/json',
-}
+export const postCheckIn = async () => ({
+  message: 'Check-in saved',
+  dashboard: checkInToday(),
+})
 
-const request = async <T>(path: string, options?: RequestInit) => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options?.headers,
-    },
-    cache: 'no-store',
-    credentials: 'include',
-  })
+export const fetchWorkouts = async (): Promise<WorkoutsResponse> => getWorkoutsData()
 
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || 'Unexpected API error')
+export const fetchProgress = async (): Promise<ProgressResponse> => getProgressData()
+
+export const fetchProfileDetails = async (): Promise<ProfileDetails> => getProfileDetails()
+
+export const updateProfile = async (profile: Partial<ProfileDetails>) => {
+  const current = getProfileDetails()
+  const merged: ProfileDetails = {
+    personal: { ...current.personal, ...profile.personal },
+    metrics: { ...current.metrics, ...profile.metrics },
+    preferences: { ...current.preferences, ...profile.preferences },
   }
-
-  return (await response.json()) as T
+  return {
+    message: 'Profile updated',
+    profile: updateProfileDetails(merged),
+  }
 }
-
-export const fetchDashboard = () => request<DashboardResponse>('/users/dashboard')
-
-export const postCheckIn = () =>
-  request<{ message: string; dashboard: DashboardResponse }>('/users/check-ins', { method: 'POST' })
-
-export const submitOnboarding = (payload: OnboardingPayload) =>
-  request<{ message: string; dashboard: DashboardResponse }>('/users/onboarding', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-
-export const fetchWorkouts = () => request<WorkoutsResponse>('/users/workouts')
-
-export const fetchProgress = () => request<ProgressResponse>('/users/progress')
-
-export const fetchProfileDetails = () => request<ProfileDetails>('/users/profile')
-
-export const updateProfile = (profile: Partial<ProfileDetails>) =>
-  request<{ message: string; profile: ProfileDetails }>('/users/profile', {
-    method: 'PATCH',
-    body: JSON.stringify(profile),
-  })

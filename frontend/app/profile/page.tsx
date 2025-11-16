@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { useProfileData } from '@/hooks/useProfileData'
 import type { ProfileDetails } from '@/types/profile'
 import { BottomNav } from '@/components/navigation/bottom-nav'
+import { AmbientBackground } from '@/components/layout/ambient-background'
 
 export default function ProfilePage() {
   const { data, loading, error, refresh, save, saving, success } = useProfileData()
@@ -147,18 +148,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b border-white/10 bg-card/70 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="max-w-5xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-          <p className="text-sm text-muted-foreground">Tune the plan to your lifestyle</p>
+    <AmbientBackground className="pb-24">
+      <div className="mx-auto max-w-5xl px-4 py-12 space-y-8">
+        <div className="space-y-2">
+          <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground">Profile</p>
+          <h1 className="text-4xl font-semibold text-foreground">Your Preferences</h1>
+          <p className="text-base text-muted-foreground">Tune the plan to your lifestyle.</p>
         </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">{renderBody()}</main>
+        {renderBody()}
+      </div>
 
       <BottomNav />
-    </div>
+    </AmbientBackground>
   )
 }
 
@@ -176,7 +178,7 @@ const Field = ({ label, value, onChange, type = 'text' }: FieldProps) => (
       value={value}
       type={type}
       onChange={(event) => onChange(event.target.value)}
-      className="bg-background/50 border-white/10"
+      className="rounded-2xl border border-border/70 bg-white/80 px-4"
     />
   </div>
 )

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { fetchProfileDetails, updateProfile } from '@/lib/api'
+import { subscribeTrainingStateUpdates } from '@/lib/training-events'
 import type { ProfileDetails } from '@/types/profile'
 
 export const useProfileData = () => {
@@ -27,6 +28,11 @@ export const useProfileData = () => {
 
   useEffect(() => {
     load()
+  }, [load])
+
+  useEffect(() => {
+    const unsubscribe = subscribeTrainingStateUpdates(load)
+    return unsubscribe
   }, [load])
 
   const save = useCallback(

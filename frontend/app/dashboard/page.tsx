@@ -9,25 +9,21 @@ import { Progress } from '@/components/ui/progress'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import { cn } from '@/lib/utils'
 import { BottomNav } from '@/components/navigation/bottom-nav'
-
-const PLAN_STATUS_STYLES: Record<'planned' | 'complete' | 'rest', string> = {
-  complete: 'text-primary bg-primary/10 border-primary/30',
-  planned: 'text-foreground bg-secondary/40 border-border',
-  rest: 'text-muted-foreground bg-transparent border-dashed border-border',
-}
+import { AmbientBackground } from '@/components/layout/ambient-background'
+import { WeekGlance } from '@/components/calendar/week-glance'
 
 export default function Dashboard() {
   const router = useRouter()
-  const { data, loading, error, refresh, checkIn, checkingIn } = useDashboardData()
+  const { data, error, refresh, checkIn, checkingIn } = useDashboardData()
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <Card className="p-8 text-center space-y-4">
+      <AmbientBackground className="flex items-center justify-center p-6">
+        <Card className="w-full max-w-md space-y-4 p-10 text-center">
           {error ? (
             <>
               <p className="text-sm text-muted-foreground">{error}</p>
-              <Button onClick={refresh} className="mx-auto">
+              <Button onClick={refresh} className="mx-auto rounded-full">
                 <RefreshCcw className="mr-2 h-4 w-4" />
                 Retry
               </Button>
@@ -35,11 +31,11 @@ export default function Dashboard() {
           ) : (
             <>
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Loading your dashboard…</p>
+              <p className="text-sm text-muted-foreground">Curating your dashboard…</p>
             </>
           )}
         </Card>
-      </div>
+      </AmbientBackground>
     )
   }
 
@@ -50,52 +46,59 @@ export default function Dashboard() {
     try {
       await checkIn()
     } catch {
-      /* errors are surfaced via state */
+      /* handled by hook */
     }
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b border-white/10 bg-card/70 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="max-w-5xl mx-auto px-4 py-6 flex items-center justify-between">
+    <AmbientBackground className="pb-24">
+      <div className="mx-auto max-w-6xl px-4 py-12 space-y-10">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-wide text-muted-foreground">Welcome back</p>
-            <h1 className="text-3xl font-bold text-foreground">{profile.name}</h1>
-            <p className="text-sm text-muted-foreground">{profile.currentGoal}</p>
+            <p className="text-sm uppercase tracking-[0.35em] text-muted-foreground">Welcome back</p>
+            <h1 className="text-4xl font-semibold text-foreground">{profile.name}</h1>
+            <p className="text-base text-muted-foreground">Currently dialed into {profile.currentGoal}</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Current streak</p>
-            <div className="text-3xl font-bold text-primary">{streak.current} days</div>
+          <div className="rounded-full border border-border/70 bg-white/70 px-5 py-2 text-sm text-muted-foreground shadow-sm backdrop-blur">
+            Streak • <span className="font-semibold text-foreground">{streak.current} days</span>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-6 border border-white/10 shadow-lg md:col-span-2 space-y-4">
-            <div className="flex items-start justify-between gap-4">
+        {error && (
+          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <Card className="space-y-8 p-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="text-xl font-bold text-foreground">
-                  {streak.hasCheckedInToday ? 'Checked in today' : 'Ready for today?'}
+                <p className="text-sm text-muted-foreground">Today’s ritual</p>
+                <h2 className="text-3xl font-semibold text-foreground">
+                  {streak.hasCheckedInToday ? 'Already grounded' : 'Log your presence'}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {streak.hasCheckedInToday
-                    ? `Great work! Keep the ${streak.current}-day streak rolling.`
-                    : `Tap in to protect your ${streak.current}-day streak.`}
+                    ? `Protected streak: ${streak.current} days`
+                    : `Keep the ${streak.current}-day streak alive.`}
                 </p>
               </div>
               <div
                 className={cn(
-                  'p-3 rounded-full',
-                  streak.hasCheckedInToday ? 'bg-primary/10 text-primary' : 'bg-secondary text-secondary-foreground animate-subtle-pulse',
+                  'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-inner',
+                  streak.hasCheckedInToday
+                    ? 'bg-primary/10 text-primary'
+                    : 'animate-subtle-pulse bg-secondary text-secondary-foreground',
                 )}
               >
-                <Flame className="h-6 w-6" />
+                <Flame className="h-4 w-4" />
+                Momentum
               </div>
             </div>
 
             <Button
-              className="w-full h-11 bg-primary hover:bg-primary/90 disabled:opacity-60"
+              className="h-12 w-full rounded-full text-base font-semibold"
               disabled={streak.hasCheckedInToday || checkingIn}
               onClick={handleCheckIn}
             >
@@ -107,149 +110,154 @@ export default function Dashboard() {
               ) : streak.hasCheckedInToday ? (
                 <>
                   <CheckCircle2 className="mr-2 h-5 w-5" />
-                  Checked in
+                  Logged today
                 </>
               ) : (
                 'Check in'
               )}
             </Button>
 
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              {streak.checkIns.map((entry) => (
-                <div key={entry.date} className="flex flex-col items-center gap-2 flex-1">
-                  <span className="text-[10px] uppercase tracking-wide">{entry.label}</span>
-                  <span
-                    className={cn(
-                      'h-3.5 w-3.5 rounded-full border',
-                      entry.completed ? 'bg-primary border-primary/60' : 'border-border',
-                    )}
-                  />
+            <div className="grid gap-4 sm:grid-cols-3">
+              <OverviewStat label="Longest streak" value={`${streak.longest} days`} icon={<Calendar className="h-4 w-4" />} />
+              <OverviewStat label="Total workouts" value={profile.totalWorkouts.toString()} icon={<Dumbbell className="h-4 w-4" />} />
+              <OverviewStat label="Level" value={`LVL ${profile.level}`} icon={<Trophy className="h-4 w-4" />} />
+            </div>
+
+            <div className="rounded-2xl border border-border/70 bg-white/70 p-5 shadow-inner">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                {streak.checkIns.map((entry) => (
+                  <div key={entry.date} className="flex flex-col items-center gap-2">
+                    <span className="uppercase tracking-wide">{entry.label}</span>
+                    <div
+                      className={cn(
+                        'flex h-8 w-8 items-center justify-center rounded-full border border-border/80',
+                        entry.completed ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      {entry.completed ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          <Card className="space-y-8 p-8">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Level {profile.level}</p>
+                  <h3 className="text-2xl font-semibold text-foreground">{profile.currentGoal}</h3>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">XP to level up</p>
+                  <p className="text-lg font-semibold text-foreground">{profile.nextLevelXp - profile.xp} XP</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{profile.xp} XP earned</span>
+                  <span>{profile.nextLevelXp} needed</span>
+                </div>
+                <Progress value={xpPercent} className="h-2 rounded-full" />
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/80 bg-white/80 p-5 shadow-inner">
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">Next session</p>
+              <h4 className="mt-2 text-xl font-semibold text-foreground">{workouts.recommendedNext.title}</h4>
+              <p className="text-sm text-muted-foreground">{workouts.recommendedNext.focus}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  {workouts.recommendedNext.duration} min
+                </span>
+                <span className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  Precision block
+                </span>
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+          <Card className="p-8">
+            <WeekGlance plan={workouts.weekPlan} disabled />
+          </Card>
+
+          <Card className="space-y-5 p-8">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-foreground">Milestones</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="rounded-full"
+                onClick={() => router.push('/progress')}
+              >
+                View roadmap
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {achievements.slice(0, 4).map((achievement) => (
+                <div key={achievement.id} className="rounded-2xl border border-border/60 bg-white/80 p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <div>
+                      <p className="font-semibold text-foreground">{achievement.name}</p>
+                      <p className="text-xs text-muted-foreground">{achievement.description}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {achievement.currentValue}/{achievement.threshold}
+                    </span>
+                  </div>
+                  <Progress value={achievement.progressPercent} className="mt-3 h-2 rounded-full" />
                 </div>
               ))}
             </div>
-
-            {error && (
-              <p className="text-xs text-destructive text-center">
-                {error} •{' '}
-                <button onClick={refresh} className="underline">
-                  Retry
-                </button>
-              </p>
-            )}
           </Card>
+        </section>
 
-          <Card className="p-6 border border-white/10 shadow-lg space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Level {profile.level}</h3>
-              <span className="text-sm text-muted-foreground">
-                {profile.xp} / {profile.nextLevelXp} XP
-              </span>
-            </div>
-            <Progress value={xpPercent} className="h-2" />
-            <p className="text-sm text-muted-foreground">
-              {profile.nextLevelXp - profile.xp} XP until Level {profile.level + 1}
-            </p>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <StatCard icon={<Calendar className="h-5 w-5 mx-auto text-primary" />} label="Current" value={`${streak.current} days`} />
-          <StatCard icon={<Trophy className="h-5 w-5 mx-auto text-primary" />} label="Best" value={`${streak.longest} days`} />
-          <StatCard icon={<Dumbbell className="h-5 w-5 mx-auto text-primary" />} label="Workouts" value={profile.totalWorkouts.toString()} />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {focus.map((insight) => (
-            <Card key={insight.title} className="p-5 border border-white/10 bg-card/70 shadow-lg">
-              <p className="text-sm font-semibold text-foreground">{insight.title}</p>
-              <p className="text-sm text-muted-foreground mt-2">{insight.description}</p>
-            </Card>
-          ))}
-        </div>
-
-        <section className="space-y-4">
+        <Card className="space-y-5 p-8">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-foreground">Achievements</h3>
-            <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Coach insights</p>
+              <h3 className="text-xl font-semibold text-foreground">What your program emphasizes</h3>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => refresh()} className="rounded-full">
               <RefreshCcw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
           </div>
-          <div className="space-y-3">
-            {achievements.map((achievement) => (
-              <Card
-                key={achievement.id}
-                className={cn(
-                  'p-4 border shadow-sm transition-colors',
-                  achievement.unlocked ? 'border-primary/30 bg-primary/5' : 'border-border',
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={cn('p-2 rounded-lg', achievement.unlocked ? 'bg-primary/20' : 'bg-secondary')}>
-                    {achievement.unlocked ? (
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                    ) : (
-                      <Target className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-sm text-foreground">{achievement.name}</h4>
-                      <span className="text-xs text-muted-foreground">
-                        {achievement.currentValue}/{achievement.threshold}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{achievement.description}</p>
-                    {!achievement.unlocked && <Progress value={achievement.progressPercent} className="h-1.5" />}
-                  </div>
-                </div>
-              </Card>
+          <div className="grid gap-4 md:grid-cols-3">
+            {focus.map((insight) => (
+              <div key={insight.title} className="rounded-2xl border border-border/60 bg-white/70 p-4 shadow-inner">
+                <p className="text-sm font-semibold text-foreground">{insight.title}</p>
+                <p className="mt-2 text-xs text-muted-foreground">{insight.description}</p>
+              </div>
             ))}
           </div>
-        </section>
-
-        <section className="space-y-3">
-          <h3 className="text-lg font-bold text-foreground">Week snapshot</h3>
-          <div className="grid gap-3 md:grid-cols-3">
-            {workouts.weekPlan.map((day) => (
-              <Card key={day.day} className={cn('p-4 border text-sm', PLAN_STATUS_STYLES[day.status])}>
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">{day.day}</span>
-                  <span className="text-xs capitalize">{day.status}</span>
-                </div>
-                <p className="text-xs mt-2">{day.focus}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" className="h-20 flex-col gap-2" onClick={() => router.push('/workouts')}>
-            <Dumbbell className="h-6 w-6" />
-            <span className="text-sm font-medium">Start Workout</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex-col gap-2" onClick={() => router.push('/progress')}>
-            <Clock className="h-6 w-6" />
-            <span className="text-sm font-medium">View Progress</span>
-          </Button>
-        </div>
-      </main>
+        </Card>
+      </div>
 
       <BottomNav />
-    </div>
+    </AmbientBackground>
   )
 }
 
-type StatCardProps = {
+type OverviewStatProps = {
   icon: ReactNode
   label: string
   value: string
 }
 
-const StatCard = ({ icon, label, value }: StatCardProps) => (
-  <div className="space-y-2">
-    {icon}
-    <div className="text-sm text-muted-foreground">{label}</div>
-    <div className="text-lg font-semibold text-foreground">{value}</div>
-  </div>
-)
+function OverviewStat({ icon, label, value }: OverviewStatProps) {
+  return (
+    <div className="space-y-2 rounded-2xl border border-border/60 bg-white/80 p-4 text-sm text-muted-foreground shadow-inner">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-wide">
+        <span className="text-primary">{icon}</span>
+        {label}
+      </div>
+      <p className="text-2xl font-semibold text-foreground">{value}</p>
+    </div>
+  )
+}

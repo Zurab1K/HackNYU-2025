@@ -3,11 +3,19 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { AmbientBackground } from '@/components/layout/ambient-background'
+
+const welcomeHighlights = [
+  'Evidence-based strength and breath protocols',
+  'Weekly check-ins with tone-matching prompts',
+  'Full transparency over recovery and readiness',
+]
 
 export default function WelcomePage() {
   const router = useRouter()
-  const [userName, setUserName] = useState('there')
+  const [userName, setUserName] = useState('friend')
 
   useEffect(() => {
     const name = localStorage.getItem('user_name')
@@ -17,71 +25,42 @@ export default function WelcomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full text-center space-y-8 animate-gentle-fade-in">
-        {/* Simple icon */}
-        <div className="flex justify-center mb-8">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-primary" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
-            </svg>
-          </div>
+    <AmbientBackground className="flex items-center justify-center px-4 py-12">
+      <Card className="max-w-3xl space-y-10 p-10 text-left">
+        <div className="flex items-center gap-3 rounded-full border border-border/50 bg-white/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-muted-foreground">
+          <Sparkles className="h-4 w-4 text-primary" />
+          Personalize
         </div>
 
-        {/* Welcome message */}
-        <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-balance leading-tight text-foreground">
-            Welcome, {userName}
+        <div className="space-y-4 text-balance">
+          <h1 className="text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+            {userName}, let’s shape a routine that moves like you do.
           </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto leading-relaxed">
-            Let's take a moment to personalize your fitness journey
+          <p className="text-lg text-muted-foreground sm:text-xl">
+            A two-minute intake so our coaches can tune your recovery, intensity, and flow without guessing.
           </p>
         </div>
 
-        {/* Simple feature list */}
-        <div className="pt-8 pb-4 space-y-3 max-w-md mx-auto">
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-primary" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {welcomeHighlights.map((highlight) => (
+            <div key={highlight} className="rounded-2xl border border-border/60 bg-white/70 p-4 text-sm text-muted-foreground shadow-inner">
+              {highlight}
             </div>
-            <p className="text-muted-foreground">Build sustainable workout habits</p>
-          </div>
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-primary" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            <p className="text-muted-foreground">Track your progress with ease</p>
-          </div>
-          <div className="flex items-center gap-3 text-left">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-primary" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            <p className="text-muted-foreground">Stay motivated with daily check-ins</p>
-          </div>
+          ))}
         </div>
 
-        {/* CTA Button */}
-        <div className="pt-4">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
           <Button
             size="lg"
-            className="h-12 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="h-12 rounded-full px-8 text-base font-semibold"
             onClick={() => router.push('/onboarding')}
           >
-            Get Started
+            Begin onboarding
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <p className="text-sm text-muted-foreground mt-4">
-            Takes 2 minutes
-          </p>
+          <p className="text-sm text-muted-foreground">2 minutes • saves automatically</p>
         </div>
-      </div>
-    </div>
+      </Card>
+    </AmbientBackground>
   )
 }

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Target, Flame, Dumbbell, Heart, ArrowRight, ArrowLeft, Zap } from 'lucide-react'
+import { OnboardingShell } from '@/components/onboarding/onboarding-shell'
 
 export default function OnboardingStep3() {
   const router = useRouter()
@@ -48,107 +48,79 @@ export default function OnboardingStep3() {
   ]
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        {/* Progress indicator */}
-        <div className="mb-8 px-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Step 3 of 4</span>
-            <span className="text-sm text-muted-foreground">Goals</span>
-          </div>
-          <div className="h-1 bg-secondary rounded-full overflow-hidden">
-            <div className="h-full bg-primary w-3/4 transition-all duration-300 rounded-full" />
+    <OnboardingShell
+      step={3}
+      label="Goals"
+      title="What are you working toward?"
+      description="This shapes the tone of your programming, nudges, and progress recaps."
+    >
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-foreground">Primary goal</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {goals.map((goal) => {
+              const Icon = goal.icon
+              return (
+                <button
+                  key={goal.id}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, goal: goal.id })}
+                  className={`rounded-2xl border p-5 transition ${
+                    formData.goal === goal.id
+                      ? 'border-primary/60 bg-primary text-primary-foreground shadow-lg'
+                      : 'border-border/70 bg-white/70 text-foreground hover:border-primary/40'
+                  }`}
+                >
+                  <Icon className="mx-auto mb-3 h-6 w-6" />
+                  <div className="text-sm font-semibold">{goal.name}</div>
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        <Card className="p-8 border border-border shadow-sm">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-foreground text-balance">
-              What's your goal?
-            </h1>
-            <p className="text-muted-foreground">
-              Choose what you want to achieve
-            </p>
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-foreground">Experience level</Label>
+          <div className="space-y-2">
+            {fitnessLevels.map((level) => (
+              <button
+                key={level.id}
+                type="button"
+                onClick={() => setFormData({ ...formData, fitnessLevel: level.id })}
+                className={`w-full rounded-2xl border p-5 text-left transition ${
+                  formData.fitnessLevel === level.id
+                    ? 'border-primary/60 bg-primary text-primary-foreground shadow-lg'
+                    : 'border-border/70 bg-white/70 text-foreground hover:border-primary/40'
+                }`}
+              >
+                <div className="font-semibold">{level.name}</div>
+                <div className="text-sm text-muted-foreground">{level.description}</div>
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="space-y-6">
-            {/* Goal Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Primary goal</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {goals.map((goal) => {
-                  const Icon = goal.icon
-                  return (
-                    <button
-                      key={goal.id}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, goal: goal.id })}
-                      className={`p-5 rounded-lg transition-all ${
-                        formData.goal === goal.id
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                      }`}
-                    >
-                      <Icon className="h-6 w-6 mx-auto mb-2" />
-                      <div className="font-medium text-sm">{goal.name}</div>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Fitness Level Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Experience level</Label>
-              <div className="space-y-2">
-                {fitnessLevels.map((level) => (
-                  <button
-                    key={level.id}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, fitnessLevel: level.id })}
-                    className={`w-full p-4 rounded-lg text-left transition-all ${
-                      formData.fitnessLevel === level.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    <div className="font-semibold mb-0.5">{level.name}</div>
-                    <div className={`text-sm ${
-                      formData.fitnessLevel === level.id 
-                        ? 'text-primary-foreground/80' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      {level.description}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex gap-3 mt-8">
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-11 px-6"
-              onClick={handleBack}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <Button
-              size="lg"
-              className="flex-1 h-11 bg-primary hover:bg-primary/90"
-              onClick={handleContinue}
-              disabled={!isFormValid}
-            >
-              Continue
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </Card>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-12 rounded-full px-6"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            size="lg"
+            className="h-12 flex-1 rounded-full text-base font-semibold"
+            onClick={handleContinue}
+            disabled={!isFormValid}
+          >
+            Continue
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
       </div>
-    </div>
+    </OnboardingShell>
   )
 }

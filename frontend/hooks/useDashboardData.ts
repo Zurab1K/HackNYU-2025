@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { fetchDashboard, postCheckIn } from '@/lib/api'
+import { subscribeTrainingStateUpdates } from '@/lib/training-events'
 import type { DashboardResponse } from '@/types/dashboard'
 
 type DashboardState = {
@@ -34,6 +35,11 @@ export const useDashboardData = () => {
 
   useEffect(() => {
     loadDashboard()
+  }, [loadDashboard])
+
+  useEffect(() => {
+    const unsubscribe = subscribeTrainingStateUpdates(loadDashboard)
+    return unsubscribe
   }, [loadDashboard])
 
   const checkIn = useCallback(async () => {

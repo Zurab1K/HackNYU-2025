@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { Calendar, Clock, ArrowLeft, Sparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
+import { OnboardingShell } from '@/components/onboarding/onboarding-shell'
+import { completeOnboardingState, type OnboardingAnswers } from '@/lib/training-state'
 
 export default function OnboardingStep4() {
   const router = useRouter()
@@ -25,6 +26,10 @@ export default function OnboardingStep4() {
     if (formData.daysPerWeek && formData.preferredTime) {
       localStorage.setItem('onboarding_step4', JSON.stringify(formData))
       localStorage.setItem('onboarding_completed', 'true')
+      const answers = buildAnswers()
+      if (answers) {
+        completeOnboardingState(answers)
+      }
       router.push('/dashboard')
     }
   }
@@ -49,111 +54,106 @@ export default function OnboardingStep4() {
     { value: 'night', label: 'Night', time: '8PM - 11PM' }
   ]
 
+  const buildAnswers = (): OnboardingAnswers | null => {
+    const step1Raw = localStorage.getItem('onboarding_step1')
+    const step2Raw = localStorage.getItem('onboarding_step2')
+    const step3Raw = localStorage.getItem('onboarding_step3')
+    if (!step1Raw || !step2Raw || !step3Raw) {
+      return null
+    }
+    try {
+      const step1 = JSON.parse(step1Raw) as { name: string; age: string; gender: string }
+      const step2 = JSON.parse(step2Raw) as { height: string; weight: string; bodyStatus: string; equipment?: string[] }
+      const step3 = JSON.parse(step3Raw) as { goal: OnboardingAnswers['goal']; fitnessLevel: OnboardingAnswers['fitnessLevel'] }
+      return {
+        name: step1.name,
+        age: Number(step1.age) || 0,
+        gender: step1.gender || 'Not specified',
+        height: Number(step2.height) || 170,
+        weight: Number(step2.weight) || 70,
+        bodyStatus: step2.bodyStatus || 'Balanced',
+        equipment: Array.isArray(step2.equipment) && step2.equipment.length ? step2.equipment : ['bodyweight', 'mat'],
+        goal: step3.goal || 'fit',
+        fitnessLevel: step3.fitnessLevel || 'intermediate',
+        daysPerWeek: Number(formData.daysPerWeek),
+        preferredTime: timeOptions.find((option) => option.value === formData.preferredTime)?.label || 'Morning',
+      }
+    } catch {
+      return null
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        {/* Progress indicator */}
-        <div className="mb-8 px-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Step 4 of 4</span>
-            <span className="text-sm text-muted-foreground">Schedule</span>
-          </div>
-          <div className="h-1 bg-secondary rounded-full overflow-hidden">
-            <div className="h-full bg-primary w-full transition-all duration-300 rounded-full" />
+    <OnboardingShell
+      step={4}
+      label="Schedule"
+      title="Design your week"
+      description="We align reminders and recovery recaps to the rhythm you can keep."
+    >
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-foreground">Days per week</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {daysOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setFormData({ ...formData, daysPerWeek: option.value })}
+                className={`rounded-2xl border p-4 text-left transition ${
+                  formData.daysPerWeek === option.value
+                    ? 'border-primary/60 bg-primary text-primary-foreground shadow-lg'
+                    : 'border-border/70 bg-white/70 text-foreground hover:border-primary/40'
+                }`}
+              >
+                <div className="text-lg font-semibold">{option.label}</div>
+                <div className="text-sm text-muted-foreground">{option.subtitle}</div>
+              </button>
+            ))}
           </div>
         </div>
 
-        <Card className="p-8 border border-border shadow-sm">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-foreground text-balance">
-              Your schedule
-            </h1>
-            <p className="text-muted-foreground">
-              When can you work out?
-            </p>
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-foreground">Preferred time</Label>
+          <div className="space-y-2">
+            {timeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setFormData({ ...formData, preferredTime: option.value })}
+                className={`w-full rounded-2xl border p-4 text-left transition ${
+                  formData.preferredTime === option.value
+                    ? 'border-primary/60 bg-primary text-primary-foreground shadow-lg'
+                    : 'border-border/70 bg-white/70 text-foreground hover:border-primary/40'
+                }`}
+              >
+                <div className="font-semibold">{option.label}</div>
+                <div className="text-sm text-muted-foreground">{option.time}</div>
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="space-y-6">
-            {/* Days Per Week Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Days per week</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {daysOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, daysPerWeek: option.value })}
-                    className={`p-4 rounded-lg text-left transition-all ${
-                      formData.daysPerWeek === option.value
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    <div className="font-semibold text-lg mb-0.5">{option.label}</div>
-                    <div className={`text-sm ${
-                      formData.daysPerWeek === option.value 
-                        ? 'text-primary-foreground/80' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      {option.subtitle}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Preferred Time Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Preferred time</Label>
-              <div className="space-y-2">
-                {timeOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, preferredTime: option.value })}
-                    className={`w-full p-4 rounded-lg text-left transition-all ${
-                      formData.preferredTime === option.value
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    <div className="font-semibold mb-0.5">{option.label}</div>
-                    <div className={`text-sm ${
-                      formData.preferredTime === option.value 
-                        ? 'text-primary-foreground/80' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      {option.time}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex gap-3 mt-8">
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-11 px-6"
-              onClick={handleBack}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <Button
-              size="lg"
-              className="flex-1 h-11 bg-primary hover:bg-primary/90"
-              onClick={handleComplete}
-              disabled={!isFormValid}
-            >
-              Complete
-              <Sparkles className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </Card>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-12 rounded-full px-6"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            size="lg"
+            className="h-12 flex-1 rounded-full text-base font-semibold"
+            onClick={handleComplete}
+            disabled={!isFormValid}
+          >
+            Complete
+            <Sparkles className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
       </div>
-    </div>
+    </OnboardingShell>
   )
 }
